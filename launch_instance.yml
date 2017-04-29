@@ -1,0 +1,6 @@
+---
+- hosts: localhost
+  vars_files:
+    - "config/aws_secure_vars.yml"
+  tasks:
+    - debug: var=api_keys.ec2
