@@ -6,3 +6,7 @@
 
 - name: Create Subnets
   include: create_subnets.yml
+
+- name: Create NAT gateway
+  include: create_nat_gateway.yml
+  when: vpc.nat_gateway_subnet_name is defined

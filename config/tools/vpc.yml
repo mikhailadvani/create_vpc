@@ -1,6 +1,7 @@
 vpc:
   cidr_block: 172.16.0.0/16
   tenancy: default
+  nat_gateway_subnet_name: public
   subnets:
   - availability_zone: us-east-1a
     cidr_block: 172.16.0.0/24
