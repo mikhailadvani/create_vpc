@@ -45,4 +45,3 @@
   with_items: "{{vpc.subnets}}"
   when: item.gateway is not defined
 
-- debug: var=nat_gateway
