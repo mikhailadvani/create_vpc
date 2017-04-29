@@ -1,4 +1,12 @@
 vpc:
   cidr_block: 172.16.0.0/16
   tenancy: default
-  subnets: []
+  subnets:
+  - availability_zone: us-east-1a
+    cidr_block: 172.16.0.0/24
+    name: public
+    public: yes
+  - availability_zone: us-east-1a
+    cidr_block: 172.16.1.0/24
+    name: private
+    public: no

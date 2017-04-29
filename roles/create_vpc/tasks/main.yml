@@ -4,3 +4,5 @@
 - name: Create VPC
   include: create_vpc.yml
 
+- name: Create Subnets
+  include: create_subnets.yml

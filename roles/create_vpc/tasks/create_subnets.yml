@@ -1,0 +1,14 @@
+---
+
+- name: Create subnets
+  ec2_vpc_subnet:
+    aws_access_key: "{{api_keys.vpc.aws_access_key_id}}"
+    aws_secret_key: "{{api_keys.vpc.aws_secret_access_key}}"
+    az: "{{item.availability_zone}}"
+    cidr: "{{item.cidr_block}}"
+    region: "{{aws_region}}"
+    state: present
+    tags:
+      Name: "{{item.name}}"
+    vpc_id: "{{created_vpc.vpc.id}}"
+  with_items: "{{vpc.subnets}}"
