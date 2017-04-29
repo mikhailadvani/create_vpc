@@ -10,3 +10,6 @@
 - name: Create NAT gateway
   include: create_nat_gateway.yml
   when: vpc.nat_gateway_subnet_name is defined
+
+- name: Create routing tables
+  include: create_routing_tables.yml

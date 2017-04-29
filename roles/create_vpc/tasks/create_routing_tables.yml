@@ -1,0 +1,48 @@
+---
+- name: Create public route table and associate subnets to it
+  ec2_vpc_route_table:
+    aws_access_key: "{{api_keys.vpc.aws_access_key_id}}"
+    aws_secret_key: "{{api_keys.vpc.aws_secret_access_key}}"
+    region: "{{aws_region}}"
+    routes:
+      - dest: 0.0.0.0/0
+        gateway_id: igw
+    state: present
+    subnets: "{{item.name}}"
+    tags:
+      Name: PublicRouteTable
+    vpc_id: "{{created_vpc.vpc.id}}"
+  with_items: "{{vpc.subnets}}"
+  when: '"{{item.gateway}}" is defined and "{{item.gateway}}" == "igw"'
+
+- name: Create private route table with NAT gateway route and associate subnets to it
+  ec2_vpc_route_table:
+    aws_access_key: "{{api_keys.vpc.aws_access_key_id}}"
+    aws_secret_key: "{{api_keys.vpc.aws_secret_access_key}}"
+    region: "{{aws_region}}"
+    routes:
+      - dest: 0.0.0.0/0
+        gateway_id: "{{nat_gateway.nat_gateway_id}}"
+    state: present
+    subnets: "{{item.name}}"
+    tags:
+      Name: PrivateRouteTableWithNAT
+    vpc_id: "{{created_vpc.vpc.id}}"
+  with_items: "{{vpc.subnets}}"
+  when: '"{{vpc.nat_gateway_subnet_name}} is defined and {{item.gateway}}" is defined and "{{item.gateway}}" == "nat"'
+
+- name: Create private route table and associate subnets to it
+  ec2_vpc_route_table:
+    aws_access_key: "{{api_keys.vpc.aws_access_key_id}}"
+    aws_secret_key: "{{api_keys.vpc.aws_secret_access_key}}"
+    region: "{{aws_region}}"
+    routes: []
+    state: present
+    subnets: "{{item.name}}"
+    tags:
+      Name: PrivateRouteTable
+    vpc_id: "{{created_vpc.vpc.id}}"
+  with_items: "{{vpc.subnets}}"
+  when: item.gateway is not defined
+
+- debug: var=nat_gateway
