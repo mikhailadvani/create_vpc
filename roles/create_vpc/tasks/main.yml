@@ -1,0 +1,6 @@
+---
+# tasks file for create_vpc
+
+- name: Create VPC
+  include: create_vpc.yml
+

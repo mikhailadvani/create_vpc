@@ -1,6 +1,10 @@
 ---
 - hosts: localhost
   vars_files:
-    - "config/aws_secure_vars.yml"
-  tasks:
-    - debug: var=api_keys.ec2
+    - "config/aws/secure_vars.yml"
+    - "config/aws/global.yml"
+#    - "config/{{vpc}}/services/{{service}}.yml"
+    - "config/{{vpc_name}}/vpc.yml"
+
+  roles:
+    - create_instance

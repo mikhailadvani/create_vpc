@@ -1,0 +1,20 @@
+---
+- name: Create VPC
+  ec2_vpc_net:
+    aws_access_key: "{{api_keys.vpc.aws_access_key_id}}"
+    aws_secret_key: "{{api_keys.vpc.aws_secret_access_key}}"
+    cidr_block: "{{vpc.cidr_block}}"
+    name: "{{vpc_name}}"
+    region: "{{aws_region}}"
+    state: present
+    tenancy: default
+  register: created_vpc
+
+- name: Create Internet gateway for the created VPC
+  ec2_vpc_igw:
+    aws_access_key: "{{api_keys.vpc.aws_access_key_id}}"
+    aws_secret_key: "{{api_keys.vpc.aws_secret_access_key}}"
+    region: "{{aws_region}}"
+    state: present
+    vpc_id: "{{created_vpc.vpc.id}}"
+  register: created_igw
