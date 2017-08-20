@@ -13,7 +13,7 @@
 - name: Fail if anything but 1 subnet is found in the facts call
   fail:
     msg: "Found {{nat_gateway_subnet.subnets|length}} subnets instead of 1 subnet"
-  when: '"{{nat_gateway_subnet.subnets|length}}" != "1"'
+  when: 'nat_gateway_subnet.subnets|length != 1'
 
 - name: Create NAT gateway
   ec2_vpc_nat_gateway:
