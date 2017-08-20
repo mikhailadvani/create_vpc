@@ -1,4 +1,17 @@
 ---
+
+- name: Initialize empty lists
+  set_fact:
+    public_subnets: []
+    private_subnets_with_outbound_access: []
+    private_subnets_without_outbound_access: []
+
+- name: Identify public subnets
+  set_fact:
+    public_subnets: "{{ public_subnets + [ item.name ] }}"
+  with_items: "{{vpc.subnets}}"
+  when: 'item.gateway is defined and item.gateway == "igw"'
+
 - name: Create public route table and associate subnets to it
   ec2_vpc_route_table:
     aws_access_key: "{{api_keys.vpc.aws_access_key_id}}"
@@ -8,12 +21,16 @@
       - dest: 0.0.0.0/0
         gateway_id: igw
     state: present
-    subnets: "{{item.name}}"
+    subnets: "{{public_subnets}}"
     tags:
       Name: PublicRouteTable
     vpc_id: "{{created_vpc.vpc.id}}"
+
+- name: Identify private subnets with outbound access
+  set_fact:
+    private_subnets_with_outbound_access: "{{ private_subnets_with_outbound_access + [ item.name ] }}"
   with_items: "{{vpc.subnets}}"
-  when: 'item.gateway is defined and item.gateway == "igw"'
+  when: 'vpc.nat_gateway_subnet_name is defined and item.gateway is defined and item.gateway == "nat"'
 
 - name: Create private route table with NAT gateway route and associate subnets to it
   ec2_vpc_route_table:
@@ -24,12 +41,16 @@
       - dest: 0.0.0.0/0
         gateway_id: "{{nat_gateway.nat_gateway_id}}"
     state: present
-    subnets: "{{item.name}}"
+    subnets: "{{private_subnets_with_outbound_access}}"
     tags:
       Name: PrivateRouteTableWithNAT
     vpc_id: "{{created_vpc.vpc.id}}"
+
+- name: Identify private subnets without outbound access
+  set_fact:
+    private_subnets_without_outbound_access: "{{ private_subnets_without_outbound_access + [ item.name ] }}"
   with_items: "{{vpc.subnets}}"
-  when: 'vpc.nat_gateway_subnet_name is defined and item.gateway is defined and item.gateway == "nat"'
+  when: item.gateway is not defined
 
 - name: Create private route table and associate subnets to it
   ec2_vpc_route_table:
@@ -38,10 +59,8 @@
     region: "{{aws_region}}"
     routes: []
     state: present
-    subnets: "{{item.name}}"
+    subnets: "{{private_subnets_without_outbound_access}}"
     tags:
       Name: PrivateRouteTable
     vpc_id: "{{created_vpc.vpc.id}}"
-  with_items: "{{vpc.subnets}}"
-  when: item.gateway is not defined
 
